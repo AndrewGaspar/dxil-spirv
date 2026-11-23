@@ -1561,16 +1561,12 @@ bool analyze_dxil_instruction_primary_pass(Converter::Impl &impl, const llvm::Ca
 		// HLSL blocks any attempt to declare the Force2StateFlag unless SM 6.9 flag is also set.
 		// If OMM mode is forced, assume the Force2StateFlag can be passed through by some other means
 		// that HLSL compiler wouldn't be able to catch.
-
-		uint32_t sm_major = 0, sm_minor = 0;
-		Converter::Impl::get_shader_model(impl.bitcode_parser.get_module(), nullptr, &sm_major, &sm_minor);
-		bool is_legacy = sm_major * 100 + sm_minor < 609;
-
-		if (impl.shader_analysis.ray_query.requires_opacity_micromap_tracing ||
-			(is_legacy && impl.options.ray_query_force_omm_execution_mode_in_legacy_sm))
-		{
-			analyze_ray_tracing_flags(impl, instruction->getOperand(3));
-		}
+		// Always analyze the flags: whether OMM is in play for ray queries
+		// (requires_opacity_micromap_tracing) is only known once every AllocateRayQuery2 has been seen,
+		// and blocks are not analyzed in program order, so a TraceRayInline may well be analyzed
+		// before the AllocateRayQuery2 that turns on OMM. The flags capability is only emitted when
+		// OMM is possible for ray queries (emit_execution_modes_ray_query), so this is safe.
+		analyze_ray_tracing_flags(impl, instruction->getOperand(3));
 		break;
 	}
 
