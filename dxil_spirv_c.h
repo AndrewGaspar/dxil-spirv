@@ -506,6 +506,7 @@ typedef enum dxil_spv_option
 	DXIL_SPV_OPTION_FLOAT_CONTROLS_2 = 54,
 	DXIL_SPV_OPTION_SHADER_ABORT = 55,
 	DXIL_SPV_OPTION_CONSERVATIVE_SSBO_VECTORIZATION = 56,
+	DXIL_SPV_OPTION_INVOCATION_REORDER_HINT_NV = 57,
 	DXIL_SPV_OPTION_INT_MAX = 0x7fffffff
 } dxil_spv_option;
 
@@ -919,6 +920,14 @@ typedef struct dxil_spv_option_conservative_ssbo_vectorization
 	dxil_spv_option_base base;
 	dxil_spv_bool enabled;
 } dxil_spv_option_conservative_ssbo_vectorization;
+
+/* SPV_NV_shader_invocation_reorder is supported: MaybeReorderThread on a NOP hit object
+ * is emitted as OpReorderThreadWithHintNV instead of the EXT reorder. */
+typedef struct dxil_spv_option_invocation_reorder_hint_nv
+{
+	dxil_spv_option_base base;
+	dxil_spv_bool supported;
+} dxil_spv_option_invocation_reorder_hint_nv;
 
 /* Gets the ABI version used to build this library. Used to detect API/ABI mismatches. */
 DXIL_SPV_PUBLIC_API void dxil_spv_get_version(unsigned *major, unsigned *minor, unsigned *patch);

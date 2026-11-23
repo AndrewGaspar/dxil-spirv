@@ -280,6 +280,7 @@ enum class Option : uint32_t
 	FloatControls2 = 54,
 	ShaderAbort = 55,
 	ConservativeSSBOVectorization = 56,
+	InvocationReorderHintNV = 57,
 	Count
 };
 
@@ -950,6 +951,20 @@ struct OptionConservativeSSBOVectorization : OptionBase
 	}
 
 	bool enabled = false;
+};
+
+// SPV_NV_shader_invocation_reorder is supported. A MaybeReorderThread on a NOP hit object
+// (HLSL MaybeReorderThread(hint, bits)) is then emitted as OpReorderThreadWithHintNV rather than
+// OpReorderThreadWithHitObjectEXT: NVIDIA's EXT reorder hangs the GPU (Xid 109) or faults
+// (Xid 13) in Alan Wake 2's SM 6.9 ray generation shaders (driver 615/620), the NV one does not.
+struct OptionInvocationReorderHintNV : OptionBase
+{
+	OptionInvocationReorderHintNV()
+		: OptionBase(Option::InvocationReorderHintNV)
+	{
+	}
+
+	bool supported = false;
 };
 
 struct DescriptorTableEntry

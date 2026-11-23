@@ -195,6 +195,7 @@ static void print_help()
 	     "\t[--quad-control-maximal-reconvergence]\n"
 	     "\t[--force-maximal-reconvergence]\n"
 	     "\t[--raw-access-chains-nv]\n"
+	     "\t[--invocation-reorder-hint-nv]\n"
 	     "\t[--extended-robustness]\n"
 	     "\t[--vkmm]\n"
 	     "\t[--full-wmma <fp8> <nv-coopmat2>]\n"
@@ -261,6 +262,7 @@ struct Arguments
 	bool quad_control_maximal_reconvergence = false;
 	bool force_maximal_reconvergence = false;
 	bool raw_access_chains_nv = false;
+	bool invocation_reorder_hint_nv = false;
 	bool extended_robustness = false;
 	bool vkmm = false;
 	bool wmma_fp8 = false;
@@ -913,6 +915,9 @@ int main(int argc, char **argv)
 	cbs.add("--raw-access-chains-nv", [&](CLIParser &) {
 		args.raw_access_chains_nv = true;
 	});
+	cbs.add("--invocation-reorder-hint-nv", [&](CLIParser &) {
+		args.invocation_reorder_hint_nv = true;
+	});
 	cbs.add("--extended-robustness", [&](CLIParser &) {
 		args.extended_robustness = true;
 	});
@@ -1296,6 +1301,13 @@ int main(int argc, char **argv)
 		const dxil_spv_option_raw_access_chains_nv chain = {
 			{ DXIL_SPV_OPTION_RAW_ACCESS_CHAINS_NV }, DXIL_SPV_TRUE };
 		dxil_spv_converter_add_option(converter, &chain.base);
+	}
+
+	if (args.invocation_reorder_hint_nv)
+	{
+		const dxil_spv_option_invocation_reorder_hint_nv hint = {
+			{ DXIL_SPV_OPTION_INVOCATION_REORDER_HINT_NV }, DXIL_SPV_TRUE };
+		dxil_spv_converter_add_option(converter, &hint.base);
 	}
 
 	if (args.extended_robustness)

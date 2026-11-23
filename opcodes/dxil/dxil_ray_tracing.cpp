@@ -920,10 +920,24 @@ bool emit_maybe_reoder_thread_instruction(Converter::Impl &impl, const llvm::Cal
 	builder.addExtension("SPV_EXT_shader_invocation_reorder");
 	builder.addCapability(spv::CapabilityShaderInvocationReorderEXT);
 
-	spv::Id hit_object = impl.get_id_for_value(inst->getOperand(1));
 	spv::Id hint = impl.get_id_for_value(inst->getOperand(2));
 	spv::Id bits = impl.get_id_for_value(inst->getOperand(3));
 
+	// MaybeReorderThread(hint, bits) is a reorder on a NOP hit object. NVIDIA's
+	// EXT reorder hangs or faults the GPU in shipping content (Alan Wake 2's SM 6.9 ray generation
+	// shaders) where the NV reorder by hint works, so prefer it when it is there.
+	if (impl.options.nv_invocation_reorder_hint &&
+	    value_is_dx_op_instrinsic(inst->getOperand(1), DXIL::Op::HitObject_MakeNop))
+	{
+		builder.addExtension("SPV_NV_shader_invocation_reorder");
+		builder.addCapability(spv::CapabilityShaderInvocationReorderNV);
+		auto *op = impl.allocate(spv::OpReorderThreadWithHintNV);
+		op->add_ids({ hint, bits });
+		impl.add(op);
+		return true;
+	}
+
+	spv::Id hit_object = impl.get_id_for_value(inst->getOperand(1));
 	auto *op = impl.allocate(spv::OpReorderThreadWithHitObjectEXT);
 	op->add_ids({
 		hit_object,

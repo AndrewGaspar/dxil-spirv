@@ -9910,6 +9910,13 @@ void Converter::Impl::set_option(const OptionBase &cap)
 		break;
 	}
 
+	case Option::InvocationReorderHintNV:
+	{
+		auto &c = static_cast<const OptionInvocationReorderHintNV &>(cap);
+		options.nv_invocation_reorder_hint = c.supported;
+		break;
+	}
+
 	default:
 		break;
 	}

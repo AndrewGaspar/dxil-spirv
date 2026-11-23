@@ -860,6 +860,7 @@ struct Converter::Impl
 		bool mixed_dot_product_fp16_fp16_fp32 = false;
 		bool supports_float_controls2 = false;
 		bool conservative_ssbo_vectorization = false;
+		bool nv_invocation_reorder_hint = false;
 
 		struct
 		{
